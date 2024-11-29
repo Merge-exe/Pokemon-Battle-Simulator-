@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemon Battle Simulator BETA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #ff6347;
+            margin-bottom: 20px;
+        }
+
+        .battle-container {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 20px;
+            width: 85%;
+            max-width: 700px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .battle-screen {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .health {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+            padding: 6px 12px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .sprite {
+            width: 600px;
+            height: 600px;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .sprite-villain {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        .action-buttons button {
+            padding: 12px 25px;
+            margin: 8px;
+            font-size: 1.1rem;
+            color: #fff;
+            background-color: #28a745;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .action-buttons button:hover {
+            background-color: #218838;
+        }
+
+        .info-section {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .info-box {
+            background-color: #343a40;
+            color: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            width: 220px;
+        }
+
+        .info-box h3 {
+            margin-bottom: 12px;
+        }
+
+        .info-box ul {
+            list-style: none;
+        }
+
+        .info-box li {
+            margin-bottom: 6px;
+        }
+
+        #battle-log {
+            max-height: 180px;
+            overflow-y: auto;
+            margin-top: 20px;
+            background-color: #222;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .upgrade-buttons button {
+            background-color: #007bff;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: white;
+            margin: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .upgrade-buttons button:hover {
+            background-color: #0056b3;
+        }
+
+        .inventory-section {
+            background-color: #28a745;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            color: white;
+        }
+
+        .inventory-section h3 {
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Pokemon Battle Simulator BETA</h1>
+
+    <div class="battle-container">
+
+        <!-- Battle Screen -->
+        <div class="battle-screen">
+            <div class="player">
+                <div class="health" id="player-health-display">Health: 100</div>
+                <img src="character.png" alt="Player" class="sprite">
+            </div>
+            <div class="villain">
+                <div class="health" id="villain-health-display">Health: 100</div>
+                <img src="villain.png" alt="Villain" class="sprite sprite-villain">
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button id="find-btn">Find Enemy</button>
+            <button id="attack-btn">Attack</button>
+            <button id="heal-btn">Heal</button>
+        </div>
+
+        <!-- Battle Log -->
+        <div id="battle-log">
+            <p>Welcome to the Pokémon Battle Simulator! Choose your action...</p>
+        </div>
+
+        <!-- Info Section -->
+        <div class="info-section">
+            <div class="info-box">
+                <h3>Player Info</h3>
+                <ul>
+                    <li>Health: <span id="player-health">100</span></li>
+                    <li>Balls: <span id="ball-count">10</span></li>
+                    <li>Level: <span id="player-level">1</span></li>
+                    <li>XP: <span id="player-xp">0</span></li>
+                </ul>
+            </div>
+            <div class="info-box">
+                <h3>Villain Info</h3>
+                <ul>
+                    <li>Health: <span id="villain-health">100</span></li>
+                    <li>Level: <span id="villain-level">1</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Upgrades Section -->
+        <div class="upgrade-buttons">
+            <button id="upgrade-attack">Power Ball (Cost: 5)</button>
+            <button id="upgrade-defense">Shield Ball (Cost: 3)</button>
+            <button id="buy-heal">Buy Heal (Cost: 2 Balls)</button>
+        </div>
+
+        <!-- Inventory Section -->
+        <div class="inventory-section">
+            <h3>Inventory</h3>
+            <ul>
+                <li>Dragon Fur: <span id="dragon-fur-count">0</span></li>
+            </ul>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <p>&copy; Chinmay Singh Butola. Made for High Seas.</p>
+    </div>
+
+    <script>
+        // Game state variables
+        let playerHealth = 100;
+        let villainHealth = 100;
+        let healingPotions = 3;
+        let attackPower = 10;
+        let defensePower = 5;
+        let balls = 10; // Player currency (balls)
+        let playerLevel = 1;
+        let playerXP = 0;
+        let villainLevel = 1;
+        let dragonFur = 0; // Inventory item
+
+        // DOM Elements
+        const battleLog = document.getElementById('battle-log');
+        const playerHealthElem = document.getElementById('player-health');
+        const villainHealthElem = document.getElementById('villain-health');
+        const ballCountElem = document.getElementById('ball-count');
+        const playerHealthDisplay = document.getElementById('player-health-display');
+        const villainHealthDisplay = document.getElementById('villain-health-display');
+        const attackBtn = document.getElementById('attack-btn');
+        const healBtn = document.getElementById('heal-btn');
+        const findBtn = document.getElementById('find-btn');
+        const upgradeAttackBtn = document.getElementById('upgrade-attack');
+        const upgradeDefenseBtn = document.getElementById('upgrade-defense');
+        const buyHealBtn = document.getElementById('buy-heal');
+        const playerLevelElem = document.getElementById('player-level');
+        const playerXPelem = document.getElementById('player-xp');
+        const villainLevelElem = document.getElementById('villain-level');
+        const dragonFurCountElem = document.getElementById('dragon-fur-count');
+
+        // Battle Log function
+        function logBattle(message) {
+            const newLog = document.createElement('p');
+            newLog.textContent = message;
+            battleLog.appendChild(newLog);
+            battleLog.scrollTop = battleLog.scrollHeight; // Auto-scroll to the bottom
+        }
+
+        // Reset villain for new battle
+        function resetVillain() {
+            villainHealth = villainLevel * 100;
+            villainLevelElem.textContent = villainLevel;
+            villainHealthElem.textContent = villainHealth;
+        }
+
+        // Update health
+        function updateHealth() {
+            playerHealthElem.textContent = playerHealth;
+            villainHealthElem.textContent = villainHealth;
+            playerHealthDisplay.textContent = `Health: ${playerHealth}`;
+            villainHealthDisplay.textContent = `Health: ${villainHealth}`;
+            if (playerHealth <= 0) {
+                logBattle('You have been defeated!');
+                resetGame();
+            }
+        }
+
+        // Villain attack
+        function villainAttack() {
+            let villainDamage = Math.max(5, Math.random() * 15 - defensePower);
+            playerHealth -= villainDamage;
+            logBattle(`Villain attacks back! Your Health: ${playerHealth}`);
+            updateHealth();
+        }
+
+        // Fight logic
+        attackBtn.addEventListener('click', () => {
+            if (villainHealth > 0) {
+                let damage = Math.max(5, Math.random() * attackPower);
+                villainHealth -= damage;
+                logBattle(`You attacked! Villain's Health: ${villainHealth}`);
+                ballCountElem.textContent = balls;
+
+                if (villainHealth <= 0) {
+                    // Villain defeated
+                    let earnedBalls = 10;
+                    balls += earnedBalls;
+                    playerXP += 10;
+                    dragonFur += 1; // Collect Dragon Fur
+                    logBattle(`You defeated the villain! You gained ${earnedBalls} balls, 10 XP, and 1 Dragon Fur.`);
+                    logBattle(`You now have ${dragonFur} Dragon Fur!`);
+                    playerXPelem.textContent = playerXP;
+                    ballCountElem.textContent = balls;
+                    dragonFurCountElem.textContent = dragonFur;
+
+                    resetVillain();
+                    playerHealth = 100;
+                    playerHealthDisplay.textContent = `Health: ${playerHealth}`;
+                    updateHealth();
+                    checkLevelUp();
+                } else {
+                    // Villain counterattacks
+                    villainAttack();
+                }
+            }
+        });
+
+        // Heal the player
+        healBtn.addEventListener('click', () => {
+            if (healingPotions > 0 && playerHealth < 100) {
+                playerHealth += 20;
+                healingPotions--;
+                logBattle(`You used a Healing Potion! Your Health: ${playerHealth}`);
+                updateHealth();
+            } else if (healingPotions === 0) {
+                logBattle('No Healing Potions left!');
+            }
+        });
+
+        // Find new enemy
+        findBtn.addEventListener('click', () => {
+            logBattle('You found a wild enemy!');
+            resetVillain();
+            logBattle('Prepare to battle!');
+        });
+
+        // Upgrade Attack
+        upgradeAttackBtn.addEventListener('click', () => {
+            if (balls >= 5) {
+                balls -= 5;
+                attackPower += 5;
+                logBattle(`You upgraded your attack power! New attack: ${attackPower}`);
+                ballCountElem.textContent = balls;
+            } else {
+                logBattle('Not enough balls to upgrade attack!');
+            }
+        });
+
+        // Upgrade Defense
+        upgradeDefenseBtn.addEventListener('click', () => {
+            if (balls >= 3) {
+                balls -= 3;
+                defensePower += 2;
+                logBattle(`You upgraded your defense power! New defense: ${defensePower}`);
+                ballCountElem.textContent = balls;
+            } else {
+                logBattle('Not enough balls to upgrade defense!');
+            }
+        });
+
+        // Buy Heal
+        buyHealBtn.addEventListener('click', () => {
+            if (balls >= 2) {
+                balls -= 2;
+                healingPotions++;
+                logBattle(`You bought a healing potion! Balls left: ${balls}`);
+                ballCountElem.textContent = balls;
+            } else {
+                logBattle('Not enough balls to buy a healing potion!');
+            }
+        });
+
+        // Level Up
+        function checkLevelUp() {
+            if (playerXP >= playerLevel * 20) {
+                playerLevel++;
+                playerXP = 0;
+                logBattle(`You leveled up! New level: ${playerLevel}`);
+                playerLevelElem.textContent = playerLevel;
+                playerXPelem.textContent = playerXP;
+            }
+        }
+
+        // Reset Game
+        function resetGame() {
+            playerHealth = 100;
+            villainHealth = 100;
+            attackPower = 10;
+            defensePower = 5;
+            healingPotions = 3;
+            balls = 10;
+            playerLevel = 1;
+            playerXP = 0;
+            dragonFur = 0;
+            ballCountElem.textContent = balls;
+            playerLevelElem.textContent = playerLevel;
+            playerXPelem.textContent = playerXP;
+            playerHealthElem.textContent = playerHealth;
+            villainHealthElem.textContent = villainHealth;
+            dragonFurCountElem.textContent = dragonFur;
+            logBattle('Game Over. Restarting...');
+            resetVillain();
+            updateHealth();
+        }
+
+    </script>
+
+</body>
+</html>
